@@ -10,7 +10,7 @@ import '../../widgets/bottom_nav_bar.dart';
 import 'package:go_router/go_router.dart';
 
 // eco-driving 모드를 위해 꼭 필요
-import 'package:example_tmap_navi/utils/sdk_utils.dart';
+import 'package:example_tmap_navi/services/tmap_sdk_initializer.dart';
 import 'package:example_tmap_navi/viewmodels/drive_model_provider.dart';
 import 'package:example_tmap_navi/common/app_routes.dart';
 
@@ -132,7 +132,7 @@ class _DrivingStartSection extends ConsumerWidget {
               child: ElevatedButton(
                 onPressed: () async {
                   ref.read(showDriveOptionsProvider.notifier).state = false;
-                  if (!(await checkTmapUISDK(context))) return;
+                  if (!(await checkTmapUISDK(context, ref))) return;
                   ref.read(driveModelProvider.notifier).setSafeDriving(true);
                   if (context.mounted) {
                     context.go(AppRoutes.drivePage);
@@ -183,7 +183,7 @@ class _DrivingStartSection extends ConsumerWidget {
         duration: Duration(seconds: 2),
       ),
     );
-    await TmapSdkInitializer.initializeTmapSdk(context, ref);
+    await initializeTmapSdk(context, ref);
   }
 }
 
