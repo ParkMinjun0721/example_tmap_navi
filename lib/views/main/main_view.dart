@@ -9,6 +9,14 @@ import '../../viewmodels/point_provider.dart';
 import '../../widgets/bottom_nav_bar.dart';
 import 'package:go_router/go_router.dart';
 
+// eco-driving 모드를 위해 꼭 필요
+import 'package:example_tmap_navi/utils/sdk_utils.dart';
+import 'package:example_tmap_navi/viewmodels/drive_model_provider.dart';
+import 'package:example_tmap_navi/common/app_routes.dart';
+
+
+
+
 final scoreProvider = StateProvider<int>((ref) => 85);
 final showDriveOptionsProvider = StateProvider<bool>((ref) => false);
 
@@ -122,11 +130,15 @@ class _DrivingStartSection extends ConsumerWidget {
               width: 200,
               height: 56,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   ref.read(showDriveOptionsProvider.notifier).state = false;
-                  context.go('/safedriving');
+                  if (!(await checkTmapUISDK(context))) return;
+                  ref.read(driveModelProvider.notifier).setSafeDriving(true);
+                  if (context.mounted) {
+                    context.go(AppRoutes.drivePage);
+                  }
                 },
-                child: const Text('안전 운전'),
+                child: const Text('Eco Driving'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.green,
