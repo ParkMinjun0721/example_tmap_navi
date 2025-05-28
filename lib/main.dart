@@ -27,6 +27,10 @@ class CashDrivingTmapApp extends ConsumerWidget {
     final themeCtrl    = ref.read(themeProvider.notifier);
 
     return MaterialApp.router(
+      title: 'Tmap Example App',
+      theme: lightThemeGlobal,
+      darkTheme: darkThemeGlobal,
+      themeMode: ThemeMode.light, // or ThemeMode.system
       routerConfig: router(),
     );
   }

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../viewmodels/navigation_controller.dart'; // 경로 맞게 조정
+import '../viewmodels/navigation_controller.dart'; // 분리된 로직 참조
 
 class BottomNavBar extends ConsumerWidget {
   final int currentIndex;
@@ -24,7 +24,7 @@ class BottomNavBar extends ConsumerWidget {
         BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Shop'),
         BottomNavigationBarItem(icon: Icon(Icons.person), label: 'MyPage'),
       ],
-      selectedItemColor: Colors.lightBlue,
+      selectedItemColor: Colors.blue,
       unselectedItemColor: Colors.grey,
       type: BottomNavigationBarType.fixed,
     );
