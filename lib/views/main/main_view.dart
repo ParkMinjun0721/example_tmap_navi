@@ -1,4 +1,4 @@
-// main_view.dart (Redesigned with GoRouter support preserved)
+// main_view.dart (Modified to replace 'Start Driving' with buttons on tap and increased button size)
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/tmap_sdk_initializer.dart';
@@ -10,6 +10,7 @@ import '../../widgets/bottom_nav_bar.dart';
 import 'package:go_router/go_router.dart';
 
 final scoreProvider = StateProvider<int>((ref) => 85);
+final showDriveOptionsProvider = StateProvider<bool>((ref) => false);
 
 class MainView extends ConsumerWidget {
   const MainView({super.key});
@@ -77,45 +78,87 @@ class _DrivingStartSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isSdkInitialized = ref.watch(tmapSdkInitializedProvider);
+    final showOptions = ref.watch(showDriveOptionsProvider);
     final screenHeight = MediaQuery.of(context).size.height;
 
-    return GestureDetector(
-      onTap: () async {
-        if (!isSdkInitialized) {
-          await _initializeTmapSdk(ref, context);
-        } else {
-          context.go('/driving');
-        }
-      },
-      child: Container(
-        width: screenHeight * 0.33,
-        height: screenHeight * 0.33,
-        margin: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.blue,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 10,
-              offset: const Offset(0, 6),
+    return Container(
+      width: screenHeight * 0.33,
+      height: screenHeight * 0.33,
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.blue,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
+      child: Center(
+        child: showOptions
+            ? Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 200,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: () {
+                  ref.read(showDriveOptionsProvider.notifier).state = false;
+                  context.go('/root/location/start');
+                },
+                child: const Text('Choose destination'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.blue,
+                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+              ),
             ),
-          ],
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
-            Icon(Icons.drive_eta, size: 48, color: Colors.white),
-            SizedBox(height: 12),
-            Text(
-              "Start Driving",
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+            const SizedBox(height: 12),
+            SizedBox(
+              width: 200,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: () {
+                  ref.read(showDriveOptionsProvider.notifier).state = false;
+                  context.go('/safedriving');
+                },
+                child: const Text('안전 운전'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.green,
+                  textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
               ),
             ),
           ],
+        )
+            : GestureDetector(
+          onTap: () async {
+            if (!isSdkInitialized) {
+              await _initializeTmapSdk(ref, context);
+            } else {
+              ref.read(showDriveOptionsProvider.notifier).state = true;
+            }
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: const [
+              Icon(Icons.drive_eta, size: 48, color: Colors.white),
+              SizedBox(height: 12),
+              Text(
+                "Start Driving",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
