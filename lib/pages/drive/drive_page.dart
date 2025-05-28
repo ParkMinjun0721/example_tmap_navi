@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:example_tmap_navi/pages/drive/trip_summary_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -67,6 +68,35 @@ class _DrivePageState extends ConsumerState<DrivePage> {
   void _onDriveStatus(TmapDriveStatus status) {
     if (status == TmapDriveStatus.onArrivedDestination) {
       debugPrint('[onDriveStatus] - onArrived');
+
+      final ecoScore = calculateEcoScore(
+        nSteady: _nSteady,
+        wSteady: _wSteady,
+        nAccel: _nAccel,
+        wAccel: _wAccel,
+        nBrake: _nBrake,
+        wBrake: _wBrake,
+      );
+
+      final drive = ref.read(driveModelProvider);
+      final data  = drive.routeRequestData;
+
+      final tripSummary = TripSummary(
+        startName: data.source!.name,
+        destinationName: data.destination!.name, // TODO: 실제 도착지 이름 받아와서 넣기
+        totalDistanceKm: _totalDistanceKm,
+        drivingTime: Duration(seconds: _totalTimeSec.round()),
+        ecoScore: ecoScore,
+        pointsEarned: ecoScore, // 예: ecoScore 점수를 그대로 포인트로
+        averageSpeed: _manualAvgSpeed.toDouble(),
+        rapidAccelCount: _nAccel,
+        rapidBrakeCount: _nBrake,
+      );
+
+      if (context.mounted) {
+        context.go(AppRoutes.tripSummary, extra: tripSummary);
+      }
+
     }
   }
 
@@ -211,8 +241,30 @@ class _DrivePageState extends ConsumerState<DrivePage> {
   void _onEvent(TmapSDKStatusMsg sdkStatus) {
     switch (sdkStatus.sdkStatus) {
       case TmapSDKStatus.dismissReq:
-        if (context.mounted) context.go(AppRoutes.rootPage);
+        if (context.mounted) {
+          final ecoScore = calculateEcoScore(
+            nSteady: _nSteady,
+            wSteady: _wSteady,
+            nAccel: _nAccel,
+            wAccel: _wAccel,
+            nBrake: _nBrake,
+            wBrake: _wBrake,
+          );
+
+          final tripSummary = TripSummary(
+            totalDistanceKm: _totalDistanceKm,
+            drivingTime: Duration(seconds: _totalTimeSec.round()),
+            ecoScore: ecoScore,
+            pointsEarned: ecoScore,
+            averageSpeed: _manualAvgSpeed.toDouble(),
+            rapidAccelCount: _nAccel,
+            rapidBrakeCount: _nBrake,
+          );
+
+          context.go(AppRoutes.tripSummary, extra: tripSummary);
+        }
         break;
+
       case TmapSDKStatus.continueDriveRequestedButNoSavedDriveInfo:
         ContinueDriveUtil.alertContinueDrive(
           context,
