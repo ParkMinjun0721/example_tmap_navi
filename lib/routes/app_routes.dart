@@ -13,6 +13,8 @@ import '../views/mypage/mypage_view.dart';
 import '../pages/root/root_page.dart';
 import '../pages/drive/drive_page.dart';
 import '../pages/location/location_picker_page.dart';
+import '../pages/drive/trip_summary_view.dart';
+
 
 class AppRoutes {
   static const login = '/login';
@@ -28,6 +30,7 @@ class AppRoutes {
   static const drivePage = '/root/drive';
   static const locationStart = '/root/location/start';
   static const locationDestination = '/root/location/destination';
+  static const tripSummary = '/tripSummary';
 }
 
 GoRouter router() {
@@ -81,6 +84,13 @@ GoRouter router() {
       GoRoute(
         path: AppRoutes.locationDestination,
         builder: (_, __) => const LocationPickerPage(mode: PickMode.destination),
+      ),
+       GoRoute(
+        path: AppRoutes.tripSummary,
+        builder: (_, state) {
+          final summary = state.extra as TripSummary;
+          return TripSummaryView(summary: summary);
+        },
       ),
     ],
   );
