@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -15,20 +14,21 @@ import 'package:tmap_ui_sdk/tmap_ui_sdk.dart';
 import 'package:tmap_ui_sdk/tmap_ui_sdk_manager.dart';
 import 'package:example_tmap_navi/common/app_routes.dart';
 import 'package:example_tmap_navi/models/car_config_model.dart';
-import 'package:example_tmap_navi/models/drive_model.dart';
 import 'package:example_tmap_navi/utils/location_utils.dart';
 import 'package:example_tmap_navi/widgets/common_toast.dart';
-
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:example_tmap_navi/utils/continue_drive_utils.dart';
+import 'package:example_tmap_navi/viewmodels/drive_model_provider.dart';
 
-class RootPage extends StatefulWidget {
+
+class RootPage extends ConsumerStatefulWidget {
   const RootPage({super.key});
 
   @override
-  State<RootPage> createState() => _RootPageState();
+  ConsumerState<RootPage> createState() => _RootPageState();
 }
 
-class _RootPageState extends State<RootPage> {
+class _RootPageState extends ConsumerState<RootPage> {
   String _platformVersion = 'Unknown';
   String _initStatus = "Unknown";
   final _tmapUiSdkPlugin = TmapUiSdk();
@@ -54,8 +54,7 @@ class _RootPageState extends State<RootPage> {
             context,
             destination: sdkStatus.extraData,
             onGranted: () {
-              final drive = Provider.of<DriveModel>(context, listen: false);
-              drive.setSafeDriving(false);
+              ref.read(driveModelProvider.notifier).setSafeDriving(false);
 
               if (context.mounted) {
                 context.go(AppRoutes.drivePage);
@@ -91,7 +90,7 @@ class _RootPageState extends State<RootPage> {
           clientServiceName: "",
           clientAppVersion: "",
           clientID: "",
-          clientApiKey: "blrZ6wxVUMAx4eS4AUgm2tWIBtlWrI3c8N0j1f70",
+          clientApiKey: "ZL6ehYGTGJ96R4pUEzb5J8URphaOWjHP67Afpm3q",
           clientApCode: "",
           userKey: "",
           deviceKey: "",
@@ -227,7 +226,7 @@ class _RootPageState extends State<RootPage> {
                   child: const Text('Normal Car Config'),
                 ),
                 TextButton(
-                  onPressed: () => context.go('/location/start'),
+                  onPressed: () => context.go('/root/location/start'),
                   child: const Text('출발지 선택하기'),
                 ),
 
@@ -250,8 +249,7 @@ class _RootPageState extends State<RootPage> {
                   onPressed: () async {
                     if (!(await checkTmapUISDK())) return;
 
-                    final drive = Provider.of<DriveModel>(context, listen: false);
-                    drive.setSafeDriving(false);
+                    ref.read(driveModelProvider.notifier).setSafeDriving(false);
 
                     if (context.mounted) {
                       context.go(AppRoutes.drivePage);
@@ -264,8 +262,7 @@ class _RootPageState extends State<RootPage> {
                   onPressed: () async {
                     if (!(await checkTmapUISDK())) return;
 
-                    final drive = Provider.of<DriveModel>(context, listen: false);
-                    drive.setSafeDriving(true);
+                    ref.read(driveModelProvider.notifier).setSafeDriving(true);
 
                     if (context.mounted) {
                       context.go(AppRoutes.drivePage);
@@ -278,8 +275,7 @@ class _RootPageState extends State<RootPage> {
                   onPressed: () async {
                     if (!(await checkTmapUISDK())) return;
 
-                    final drive = Provider.of<DriveModel>(context, listen: false);
-                    drive.setSafeDriving(false);
+                    ref.read(driveModelProvider.notifier).setSafeDriving(false);
 
                     if (context.mounted) {
                       context.go(AppRoutes.drivePage);

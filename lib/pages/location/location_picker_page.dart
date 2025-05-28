@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
@@ -7,12 +8,13 @@ import 'package:tmap_ui_sdk/route/data/route_point.dart';
 import 'package:example_tmap_navi/models/drive_model.dart';
 import 'package:example_tmap_navi/common/app_routes.dart';
 import 'package:example_tmap_navi/utils/location_utils.dart';
+import 'package:example_tmap_navi/viewmodels/drive_model_provider.dart';
 
 import '../../common/app_routes.dart';  // ← 변경된 Utils
 
 enum PickMode { start, destination }
 
-class LocationPickerPage extends StatefulWidget {
+class LocationPickerPage extends ConsumerStatefulWidget {
   final PickMode mode;
   const LocationPickerPage({Key? key, required this.mode}) : super(key: key);
 
@@ -20,7 +22,7 @@ class LocationPickerPage extends StatefulWidget {
   _LocationPickerPageState createState() => _LocationPickerPageState();
 }
 
-class _LocationPickerPageState extends State<LocationPickerPage> {
+class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
   GoogleMapController? _mapController;
   LatLng? _picked;
   LatLng? _currentLatLng;
@@ -90,10 +92,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
               right: 24,
               child: ElevatedButton(
                 onPressed: () {
-                  final drive = Provider.of<DriveModel>(
-                    context,
-                    listen: false,
-                  );
+                  final drive = ref.watch(driveModelProvider);
                   if (isStart) {
                     drive.setSource(
                       RoutePoint(
@@ -102,7 +101,7 @@ class _LocationPickerPageState extends State<LocationPickerPage> {
                         name: "출발지",
                       ),
                     );
-                    context.go('/location/destination');
+                    context.go('/root/location/destination');
                   } else {
                     drive.setDestination(
                       RoutePoint(

@@ -53,7 +53,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
       }
 
       if (!mounted) return;
-      context.go('/main');
+      context.go('/');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("로그인 실패: $e")),

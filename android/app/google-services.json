@@ -66,6 +66,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "632076340870-tkcpqcqr1dpvh2hvqp7pjnbofn3b0fu2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.example_tmap_navi",
+            "certificate_hash": "33a5ac686fea9969ca1bba6c1314defff3fe559b"
+          }
+        },
+        {
+          "client_id": "632076340870-v91r0poel8i98dskjc65tjf0a4df8gj7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.example_tmap_navi",
+            "certificate_hash": "fbb595a6ffdc09ad444ddf6055f2f23309bbf849"
+          }
+        },
+        {
           "client_id": "632076340870-ogh31jdgo1f7kia28nvbooiut9k5ahq2.apps.googleusercontent.com",
           "client_type": 3
         }

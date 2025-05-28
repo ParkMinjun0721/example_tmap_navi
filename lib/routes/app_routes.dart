@@ -15,9 +15,9 @@ import '../pages/drive/drive_page.dart';
 import '../pages/location/location_picker_page.dart';
 
 class AppRoutes {
-  static const login = '/';
+  static const login = '/login';
   static const rootPage = '/root';
-  static const main = '/main';
+  static const main = '/';
   static const dashboard = '/dashboard';
   static const shop = '/shop';
   static const mission = '/mission';
@@ -25,9 +25,9 @@ class AppRoutes {
   static const mypage = '/mypage';
   static const driving = '/driving';
 
-  static const drivePage = '/drive';
-  static const locationStart = '/location/start';
-  static const locationDestination = '/location/destination';
+  static const drivePage = '/root/drive';
+  static const locationStart = '/root/location/start';
+  static const locationDestination = '/root/location/destination';
 }
 
 GoRouter router() {
