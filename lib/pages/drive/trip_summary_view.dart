@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../common/app_routes.dart';
 import '../../theme/theme.dart'; // CustomColors 경로에 맞게 수정
 import '../../views/main/main_view.dart';
 
 class TripSummary {
-  final String startName;
-  final String destinationName;
+  final String? startName;
+  final String? destinationName;
   final double totalDistanceKm;
   final Duration drivingTime;
   final int ecoScore;
@@ -14,8 +16,8 @@ class TripSummary {
   final int rapidBrakeCount;
 
   TripSummary({
-    required this.startName,
-    required this.destinationName,
+    this.startName,
+    this.destinationName,
     required this.totalDistanceKm,
     required this.drivingTime,
     required this.ecoScore,
@@ -43,11 +45,7 @@ class TripSummaryView extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(builder: (_) => const MainView()),
-                  (route) => false,
-            );
+            context.go(AppRoutes.main); // '/' 경로로 이동
           },
         ),
         title: const Text("Trip Summary"),
@@ -85,6 +83,12 @@ class TripSummaryView extends StatelessWidget {
   }
 
   Widget _locationCard(ThemeData theme, CustomColors customColors) {
+    final hasStart = summary.startName != null && summary.startName!.isNotEmpty;
+    final hasDest  = summary.destinationName != null && summary.destinationName!.isNotEmpty;
+
+    // 둘 다 없으면 아예 출력 안 함
+    if (!hasStart && !hasDest) return const SizedBox.shrink();
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -94,9 +98,9 @@ class TripSummaryView extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _locationRow(Icons.my_location, "Starting Point", summary.startName, customColors),
+          _locationRow(Icons.my_location, "Starting Point", summary.startName!, customColors),
           const SizedBox(height: 12),
-          _locationRow(Icons.flag, "Destination", summary.destinationName, customColors),
+          _locationRow(Icons.flag, "Destination", summary.destinationName!, customColors),
         ],
       ),
     );

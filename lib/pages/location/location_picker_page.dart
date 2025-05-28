@@ -1,11 +1,10 @@
+import 'package:example_tmap_navi/pages/location/placename_getter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';                     // ← 추가
 import 'package:tmap_ui_sdk/route/data/route_point.dart';
-import 'package:example_tmap_navi/models/drive_model.dart';
 import 'package:example_tmap_navi/common/app_routes.dart';
 import 'package:example_tmap_navi/utils/location_utils.dart';
 import 'package:example_tmap_navi/viewmodels/drive_model_provider.dart';
@@ -71,7 +70,16 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
             myLocationEnabled: true,
             myLocationButtonEnabled: true,
             onMapCreated: (c) => _mapController = c,
-            onTap: (pos) => setState(() => _picked = pos),
+            onTap: (pos) async {
+              setState(() {
+                _picked = pos;
+              });
+
+              final placeName = await getPlaceNameFromLatLng(pos);
+              print("선택한 위치의 이름: $placeName");
+
+              // 필요하면 상태로 저장해서 UI에도 표시 가능
+            },
             markers: {
               if (_picked != null)
                 Marker(
@@ -91,14 +99,15 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
               left: 24,
               right: 24,
               child: ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   final drive = ref.watch(driveModelProvider);
+                  final placeName = await getPlaceNameFromLatLng(_picked!);
                   if (isStart) {
                     drive.setSource(
                       RoutePoint(
                         latitude: _picked!.latitude,
                         longitude: _picked!.longitude,
-                        name: "출발지",
+                        name: placeName,
                       ),
                     );
                     context.go('/root/location/destination');
@@ -107,7 +116,7 @@ class _LocationPickerPageState extends ConsumerState<LocationPickerPage> {
                       RoutePoint(
                         latitude: _picked!.latitude,
                         longitude: _picked!.longitude,
-                        name: "목적지",
+                        name: placeName,
                       ),
                     );
                     drive.setSafeDriving(false);
