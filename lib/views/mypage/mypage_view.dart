@@ -58,24 +58,26 @@ class _MyPageViewState extends ConsumerState<MyPageView> {
     final point = ref.watch(pointProvider);
 
     return Scaffold(
-      appBar: CustomAppBar_Main(backgroundColor: customColors.white),
+      // appBar: CustomAppBar_Main(backgroundColor: customColors.white),
       bottomNavigationBar: const BottomNavBar(currentIndex: 4),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _ProfileSection(nickname: nickname, onEdit: () => _changeNickname(context)),
-            const SizedBox(height: 24),
-            _EcoDrivingScore(score: 92),
-            const SizedBox(height: 24),
-            Text("Current Points: $point P", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            const _PurchasedItemsSection(),
-            const _BadgeSection(),
-            const SizedBox(height: 24),
-            const _BottomButtons(),
-          ],
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _ProfileSection(nickname: nickname, onEdit: () => _changeNickname(context)),
+              const SizedBox(height: 24),
+              _EcoDrivingScore(score: 92),
+              const SizedBox(height: 24),
+              Text("Current Points: $point P", style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              const SizedBox(height: 16),
+              const _PurchasedItemsSection(),
+              const _BadgeSection(),
+              const SizedBox(height: 24),
+              const _BottomButtons(),
+            ],
+          ),
         ),
       ),
     );

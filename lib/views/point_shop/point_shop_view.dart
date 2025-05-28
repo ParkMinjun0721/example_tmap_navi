@@ -1,6 +1,5 @@
-// point_shop_view.dart (with category-filtered product_provider integration)
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+// point_shop_view.dart
+// Updated point_shop_view.dart with a cleaner and more modern design in blue theme
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../theme/font.dart';
@@ -36,13 +35,54 @@ class _PointShopViewState extends ConsumerState<PointShopView> with SingleTicker
 
   @override
   Widget build(BuildContext context) {
+    final point = ref.watch(pointProvider);
+
     return Scaffold(
-      appBar: const CustomAppBar_PointShop(),
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.white,
+        automaticallyImplyLeading: false,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.shopping_bag, color: Colors.blue),
+                const SizedBox(width: 8),
+                Text(
+                  'PointShop',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.black,
+                  ),
+                ),
+              ],
+            ),
+            Row(
+              children: [
+                Icon(Icons.monetization_on, color: Colors.blue),
+                const SizedBox(width: 4),
+                Text(
+                  '$point P',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w500,
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
       bottomNavigationBar: const BottomNavBar(currentIndex: 3),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: Column(
           children: [
+            const SizedBox(height: 12),
             const _PointShopSearchSection(),
             const SizedBox(height: 16),
             _PointShopTabSection(tabController: _tabController),
@@ -61,9 +101,16 @@ class _PointShopSearchSection extends StatelessWidget {
     return TextField(
       decoration: InputDecoration(
         hintText: 'Search products',
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-        isDense: true,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        prefixIcon: const Icon(Icons.search, color: Colors.blue),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.blue),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.blue, width: 2),
+        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       ),
     );
   }
@@ -77,23 +124,18 @@ class _PointShopTabSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final allProducts = ref.watch(couponProductProvider);
-
-    final couponProducts = allProducts
-        .where((p) => p.category == ProductCategory.coupon)
-        .toList();
-    final goodsProducts = allProducts
-        .where((p) => p.category == ProductCategory.goods)
-        .toList();
+    final couponProducts = allProducts.where((p) => p.category == ProductCategory.coupon).toList();
+    final goodsProducts = allProducts.where((p) => p.category == ProductCategory.goods).toList();
 
     return Expanded(
       child: Column(
         children: [
           TabBar(
             controller: tabController,
-            indicatorColor: Colors.black,
-            labelColor: Colors.black,
+            indicatorColor: Colors.transparent,
+            labelColor: Colors.blue,
             unselectedLabelColor: Colors.grey,
-            labelStyle: pretendardBold(context).copyWith(fontSize: 13),
+            labelStyle: pretendardBold(context).copyWith(fontSize: 14),
             tabs: const [
               Tab(text: 'Coupon'),
               Tab(text: 'Goods'),
@@ -134,80 +176,70 @@ class _ProductGridSection extends ConsumerWidget {
         crossAxisCount: 2,
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
-        childAspectRatio: 0.75,
+        childAspectRatio: 0.7,
       ),
       itemCount: products.length,
       itemBuilder: (context, index) {
         final product = products[index];
         final bool canPurchase = point >= product.point;
 
-        return Container(
-          decoration: BoxDecoration(
+        return Material(
+          color: Colors.white,
+          elevation: 2,
+          borderRadius: BorderRadius.circular(12),
+          child: InkWell(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.grey.shade300),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: Image.network(
-                  product.imageUrl,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => const Center(child: Text('Image')),
+            onTap: canPurchase ? () {} : null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Expanded(
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                    child: Image.network(
+                      product.imageUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => const Center(child: Text('Image')),
+                    ),
+                  ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(product.name, style: pretendardMedium(context)),
-                    const SizedBox(height: 4),
-                    Text('${product.point} P', style: pretendardRegular(context)),
-                    const SizedBox(height: 8),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: canPurchase ? customColors.primary : Colors.grey,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                        ),
-                        onPressed: canPurchase
-                            ? () async {
-                          final success = pointController.purchase(product.point);
-                          if (success) {
-                            final updatedProducts = [...ref.read(purchaseHistoryProvider), PurchasedProduct(name: product.name, point: product.point)];
-                            purchaseHistory.setAll(updatedProducts);
-
-                            // ✅ Firestore 업데이트
-                            final user = FirebaseAuth.instance.currentUser;
-                            if (user != null) {
-                              await FirebaseFirestore.instance.collection('user').doc(user.uid).update({
-                                'point': ref.read(pointProvider),
-                                'product': updatedProducts.map((p) => p.toMap()).toList(),
-                              });
+                Padding(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(product.name, style: pretendardMedium(context)),
+                      const SizedBox(height: 4),
+                      Text('${product.point} P', style: pretendardRegular(context)),
+                      const SizedBox(height: 8),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: canPurchase ? Colors.blue : Colors.grey[400],
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
+                          onPressed: canPurchase
+                              ? () {
+                            final success = pointController.purchase(product.point);
+                            if (success) {
+                              purchaseHistory.add(PurchasedProduct(name: product.name, point: product.point));
                             }
-
-                            // ✅ 알림 등
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Product purchased!')),
-                            );
                           }
-                        }
-                            : null,
-                        child: const Text('Purchase'),
-                      ),
-                    )
-                  ],
+                              : null,
+                          child: const Text('Purchase'),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
     );
   }
 }
-

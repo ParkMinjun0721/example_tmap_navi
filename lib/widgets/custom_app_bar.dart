@@ -53,7 +53,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
     return AppBar(
       scrolledUnderElevation: 0,
-      leading: Container(child: Image.asset('assets/images/applogo.png')),// logo 부분. 추후 진짜 로고로 바꿀 것
+      leading: Container(child: Image.asset('assets/images/logo.png')),// logo 부분. 추후 진짜 로고로 바꿀 것
       title: Text(
         title,
         style: TextStyle(
@@ -97,7 +97,7 @@ class CustomAppBar_Main extends StatelessWidget implements PreferredSizeWidget {
       leading: Padding(
         padding: const EdgeInsets.only(left: 16.0),
         child: Image.asset(
-          'assets/images/applogo.png',
+          'assets/images/logo.png',
           height: 28,
           width: 35,
         ),
@@ -178,7 +178,7 @@ class CustomAppBar_Mission extends StatelessWidget implements PreferredSizeWidge
       leading: Padding(
         padding: const EdgeInsets.only(left: 16.0),
         child: Image.asset(
-          'assets/images/applogo.png',
+          'assets/images/logo.png',
           height: 28,
           width: 35,
         ),

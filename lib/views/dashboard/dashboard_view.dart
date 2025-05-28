@@ -1,12 +1,11 @@
+// dashboard_view.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:fl_chart/fl_chart.dart';
 import '../../theme/font.dart';
 import '../../theme/theme.dart';
 import '../../viewmodels/custom_colors_provider.dart';
 import '../../viewmodels/dashboard_viewmodel.dart';
-import '../../viewmodels/tab_controller.dart'; // ✅ Tab controller
-import '../../widgets/custom_app_bar.dart';
+import '../../viewmodels/tab_controller.dart';
 import '../../widgets/bottom_nav_bar.dart';
 import '../../widgets/eco_score_chart.dart';
 
@@ -20,92 +19,101 @@ class DashboardView extends ConsumerWidget {
     final dashboardData = ref.watch(dashboardDataProvider);
 
     return Scaffold(
-      backgroundColor: customColors.white,
-      appBar: CustomAppBar_Main(backgroundColor: customColors.white),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 12),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Tab Menu
-              Row(
-                children: [
-                  for (int i = 0; i < 3; i++)
-                    _DashboardTab(
-                      text: ["Weekly", "Monthly", "Total"][i],
-                      isSelected: selectedTab == i,
-                      onTap: () => ref.read(selectedTabProvider.notifier).state = i,
-                    ),
-                ],
+      backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        centerTitle: true,
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: const [
+            Icon(Icons.directions_car, color: Colors.blue),
+            SizedBox(width: 8),
+            Text(
+              "Dashboard",
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
               ),
-              const SizedBox(height: 20),
+            )
+          ],
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Tabs
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: List.generate(3, (i) {
+                return _DashboardTab(
+                  text: ["Weekly", "Monthly", "Total"][i],
+                  isSelected: selectedTab == i,
+                  onTap: () => ref.read(selectedTabProvider.notifier).state = i,
+                );
+              }),
+            ),
+            const SizedBox(height: 20),
 
-              Text('Eco Score Trend', style: heading_xsmall(context)),
-              const SizedBox(height: 8),
-              EcoScoreChart(dataPoints: dashboardData.ecoScoreTrend),
+            _SectionCard(
+              title: "Eco Score Trend",
+              child: EcoScoreChart(dataPoints: dashboardData.ecoScoreTrend),
+            ),
+            const SizedBox(height: 16),
 
-              const SizedBox(height: 24),
-
-              Text('Carbon Reduction', style: heading_xsmall(context)),
-              const SizedBox(height: 4),
-              Row(
+            _SectionCard(
+              title: "Carbon Reduction",
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('Reduction this ${["week", "month", "period"][selectedTab]}', style: body_small(context)),
+                  Row(
+                    children: const [
+                      Icon(Icons.eco, color: Colors.green),
+                      SizedBox(width: 6),
+                      Text("Reduction this week"),
+                    ],
+                  ),
                   Text(
                     dashboardData.ecoScore,
-                    style: body_small(context).copyWith(
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
-              EcoScoreChart(dataPoints: dashboardData.carbonSavedTrend),
+            ),
+            const SizedBox(height: 16),
 
-              const SizedBox(height: 24),
-
-              Text('Fuel Efficiency Improvement', style: heading_xsmall(context)),
-              const SizedBox(height: 4),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            _SectionCard(
+              title: "Fuel Efficiency Improvement",
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Compared to Average', style: body_small(context)),
-                  Text(
-                    dashboardData.fuelEfficiency,
-                    style: body_small(context).copyWith(
-                      color: Colors.green,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text("Compared to Average"),
+                      Text("28%", style: TextStyle(color: Colors.blue, fontWeight: FontWeight.bold)),
+                    ],
                   ),
+                  const SizedBox(height: 8),
+                  EcoScoreChart(dataPoints: dashboardData.fuelEfficiencyTrend),
                 ],
               ),
-              const SizedBox(height: 8),
-              EcoScoreChart(dataPoints: dashboardData.fuelEfficiencyTrend),
+            ),
+            const SizedBox(height: 16),
 
-              const SizedBox(height: 24),
-
-              Text('My Ranking', style: heading_xsmall(context)),
-              const SizedBox(height: 12),
-              _RankingBar(
-                label: dashboardData.rankings[0].label,
-                valueText: dashboardData.rankings[0].valueText,
-                ratio: dashboardData.rankings[0].ratio,
+            _SectionCard(
+              title: "My Ranking",
+              child: Column(
+                children: dashboardData.rankings.map((rank) => _RankingBar(
+                  label: rank.label,
+                  valueText: rank.valueText,
+                  ratio: rank.ratio,
+                )).toList(),
               ),
-              _RankingBar(
-                label: dashboardData.rankings[1].label,
-                valueText: dashboardData.rankings[1].valueText,
-                ratio: dashboardData.rankings[1].ratio,
-              ),
-              _RankingBar(
-                label: dashboardData.rankings[2].label,
-                valueText: dashboardData.rankings[2].valueText,
-                ratio: dashboardData.rankings[2].ratio,
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: const BottomNavBar(currentIndex: 1),
@@ -113,7 +121,6 @@ class DashboardView extends ConsumerWidget {
   }
 }
 
-// Tab button widget
 class _DashboardTab extends StatelessWidget {
   final String text;
   final bool isSelected;
@@ -123,61 +130,88 @@ class _DashboardTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 24.0),
-      child: InkWell(
-        onTap: onTap,
-        child: Text(
-          text,
-          style: body_small(context).copyWith(
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-            decoration: isSelected ? TextDecoration.underline : TextDecoration.none,
-          ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Text(
+        text,
+        style: TextStyle(
+          fontWeight: FontWeight.bold,
+          fontSize: 14,
+          color: isSelected ? Colors.blue : Colors.black,
         ),
       ),
     );
   }
 }
 
-// Ranking progress bar widget
-class _RankingBar extends StatelessWidget {
-  final String label;
-  final String valueText;
-  final double ratio; // range: 0.0 ~ 1.0
+class _SectionCard extends StatelessWidget {
+  final String title;
+  final Widget child;
 
-  const _RankingBar({
-    required this.label,
-    required this.valueText,
-    required this.ratio,
-  });
+  const _SectionCard({required this.title, required this.child});
 
   @override
   Widget build(BuildContext context) {
-    final customColors = Theme.of(context).extension<CustomColors>()!;
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 8,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          ),
+          const SizedBox(height: 12),
+          child,
+        ],
+      ),
+    );
+  }
+}
+
+class _RankingBar extends StatelessWidget {
+  final String label;
+  final String valueText;
+  final double ratio;
+
+  const _RankingBar({required this.label, required this.valueText, required this.ratio});
+
+  @override
+  Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-        decoration: BoxDecoration(
-          color: customColors.neutral90,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('$label  $valueText', style: body_small(context)),
-            const SizedBox(height: 6),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: LinearProgressIndicator(
-                value: ratio,
-                minHeight: 10,
-                backgroundColor: Colors.grey.shade300,
-                valueColor: AlwaysStoppedAnimation<Color>(customColors.primary!),
-              ),
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(label),
+              Text(valueText, style: const TextStyle(fontWeight: FontWeight.bold)),
+            ],
+          ),
+          const SizedBox(height: 6),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: ratio,
+              minHeight: 8,
+              backgroundColor: Colors.grey.shade300,
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -101,7 +101,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                     ),
                     child: ClipOval(
                       child: Image.asset(
-                        "assets/images/applogo.png",
+                        "assets/images/logo.png",
                         fit: BoxFit.cover,
                         width: 160,
                         height: 160,
@@ -147,7 +147,7 @@ class _LoginViewState extends ConsumerState<LoginView> {
                           ),
                           padding: const EdgeInsets.all(2),
                           child: Image.asset(
-                            'assets/images/Google_2015_logo.svg.png',
+                            'assets/images/google.png',
                             fit: BoxFit.contain,
                           ),
                         ),
